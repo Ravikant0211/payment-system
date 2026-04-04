@@ -1,0 +1,50 @@
+{
+  "name": "payment-system",
+  "version": "1.0.0",
+  "description": "Fault-tolerant, scalable e-commerce payment system",
+  "main": "dist/main.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "dev": "nodemon",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write 'src/**/*.ts'",
+    "migrate": "ts-node src/infrastructure/database/migrator.ts",
+    "seed": "ts-node scripts/seed-db.ts",
+    "reconcile": "ts-node scripts/run-reconciliation.ts",
+    "generate-api-key": "ts-node scripts/generate-api-key.ts"
+  },
+  "dependencies": {
+    "@types/node": "^20.11.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.3.2",
+    "kafkajs": "^2.2.4",
+    "node-cron": "^3.0.3",
+    "pg": "^8.11.3",
+    "pino": "^8.17.2",
+    "pino-http": "^9.0.0",
+    "pino-pretty": "^10.3.1",
+    "prom-client": "^15.1.0",
+    "stripe": "^14.14.0",
+    "uuid": "^9.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.10.9",
+    "@types/uuid": "^9.0.7",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
