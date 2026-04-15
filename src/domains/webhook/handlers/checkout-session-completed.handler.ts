@@ -32,13 +32,15 @@ export async function handleCheckoutSessionCompleted(
   }
 
   // Update payment to COMPLETED
+  const stripePaymentIntentId =
+    typeof session.payment_intent === 'string'
+      ? session.payment_intent
+      : (session.payment_intent?.id ?? undefined);
+
   const payment = await paymentRepo.updateStatus(client, {
     id: paymentId,
     status: PaymentStatus.COMPLETED,
-    stripePaymentIntentId:
-      typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : session.payment_intent?.id ?? undefined,
+    ...(stripePaymentIntentId ? { stripePaymentIntentId } : {}),
   });
 
   // Record payment event

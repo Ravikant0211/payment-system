@@ -21,7 +21,7 @@ export function createPaymentRouter(pool: Pool, redis: Redis): Router {
   const controller = new PaymentController(paymentService);
 
   const auth = createAuthMiddleware(pool, redis);
-  const idempotency = idempotencyMiddleware(redis, pool);
+  const idempotency = idempotencyMiddleware(redis);
 
   // All payment routes require authentication
   router.use(auth);

@@ -150,7 +150,7 @@ export class StuckPaymentsChecker {
       await this.paymentRepo.updateStatus(client, {
         id: payment.id,
         status: PaymentStatus.COMPLETED,
-        stripePaymentIntentId: stripePaymentIntentId ?? undefined,
+        ...(stripePaymentIntentId ? { stripePaymentIntentId } : {}),
       });
 
       await this.paymentRepo.recordEvent(client, {

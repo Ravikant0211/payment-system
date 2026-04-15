@@ -46,9 +46,11 @@ function toStripePaymentMethods(
     case 'DEBIT_CARD':
       return ['card'];
     case 'UPI':
-      return ['upi'];
+      // 'upi' is valid in Stripe's API for India but not yet in the installed SDK type union
+      return ['upi' as Stripe.Checkout.SessionCreateParams.PaymentMethodType];
     case 'NET_BANKING':
-      return ['netbanking'];
+      // 'netbanking' is valid in Stripe's API for India but not yet in the installed SDK type union
+      return ['netbanking' as Stripe.Checkout.SessionCreateParams.PaymentMethodType];
   }
 }
 

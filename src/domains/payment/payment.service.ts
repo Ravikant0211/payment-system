@@ -176,11 +176,11 @@ export class PaymentService {
   ): Promise<PaymentPage> {
     return this.paymentRepo.list({
       merchantId,
-      cursor: query.cursor,
       limit: query.limit,
-      status: query.status,
-      fromDate: query.fromDate ? new Date(query.fromDate) : undefined,
-      toDate: query.toDate ? new Date(query.toDate) : undefined,
+      ...(query.cursor   ? { cursor:   query.cursor }              : {}),
+      ...(query.status   ? { status:   query.status }              : {}),
+      ...(query.fromDate ? { fromDate: new Date(query.fromDate) }  : {}),
+      ...(query.toDate   ? { toDate:   new Date(query.toDate) }    : {}),
     });
   }
 }

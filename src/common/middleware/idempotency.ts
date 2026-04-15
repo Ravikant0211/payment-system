@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { Redis } from 'ioredis';
-import { Pool } from 'pg';
 import { setIfNotExists } from '@/infrastructure/redis/lua-scripts';
 import { hashContent } from '@/common/utils/crypto';
 import { ConflictError, ValidationError } from '@/common/errors';
@@ -24,7 +23,7 @@ interface CachedResponse {
  * Returns 409 if the same key is used with a different request body (body hash mismatch).
  * Returns the cached response if the key was already processed successfully.
  */
-export function idempotencyMiddleware(redis: Redis, pool: Pool) {
+export function idempotencyMiddleware(redis: Redis) {
   return async function idempotency(
     req: Request,
     res: Response,
@@ -51,7 +50,14 @@ export function idempotencyMiddleware(redis: Redis, pool: Pool) {
       );
 
       if (existing) {
-        const cached = JSON.parse(existing) as CachedResponse & { status: 'processing' | number };
+        // Two possible stored shapes:
+        //   In-flight:  { requestHash: string }                          (no `body`)
+        //   Completed:  { status: number; body: unknown; requestHash }   (has `body`)
+        // Discriminate on `body` — only CachedResponse carries it, so `'body' in cached`
+        // narrows cleanly without any string-vs-number comparison issue.
+        const cached = JSON.parse(existing) as
+          | { requestHash: string }
+          | CachedResponse;
 
         if (cached.requestHash !== requestHash) {
           return next(
@@ -61,8 +67,8 @@ export function idempotencyMiddleware(redis: Redis, pool: Pool) {
           );
         }
 
-        if (cached.status === 'processing') {
-          // Request is in-flight, return 202 and let client retry
+        if (!('body' in cached)) {
+          // Request is in-flight — no cached response yet, ask client to retry
           res.status(202).json({
             message: 'Request is being processed. Please retry shortly.',
           });

@@ -140,9 +140,10 @@ export async function registerConsumer(
             'Message routed to dead-letter queue',
           );
 
+          const dlqKey = message.key?.toString();
           await sendMessage({
             topic: `${originalTopic}.dlq`,
-            key: message.key?.toString(),
+            ...(dlqKey ? { key: dlqKey } : {}),
             value: {
               originalTopic,
               partition,

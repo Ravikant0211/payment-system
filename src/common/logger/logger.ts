@@ -4,10 +4,11 @@ import { getTraceContext } from '@/common/tracing/trace-context';
 
 export const logger = pino({
   level: appConfig.logLevel,
-  transport:
-    appConfig.isDevelopment
-      ? { target: 'pino-pretty', options: { colorize: true, singleLine: false } }
-      : undefined,
+  // exactOptionalPropertyTypes: omit the key entirely in production rather than setting it to
+  // undefined — pino's LoggerOptions.transport does not accept undefined as a value.
+  ...(appConfig.isDevelopment
+    ? { transport: { target: 'pino-pretty', options: { colorize: true, singleLine: false } } }
+    : {}),
   formatters: {
     level: (label) => ({ level: label }),
     bindings: (bindings) => ({ pid: bindings['pid'], hostname: bindings['hostname'] }),

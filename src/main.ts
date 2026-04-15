@@ -22,35 +22,44 @@
  * - Close Redis connection
  */
 
-import 'dotenv/config';
+import "dotenv/config";
 
 // Validate all config on startup — throws if required env vars are missing
-import './config';
+import "./config";
 
-import * as http from 'http';
-import { getPool, closePool } from '@/infrastructure/database/pg-pool';
-import { runMigrations } from '@/infrastructure/database/migrator';
-import { getRedisClient, closeRedisClient } from '@/infrastructure/redis/redis-client';
-import { getProducer, disconnectProducer } from '@/infrastructure/kafka/producer';
-import { initConsumerManager, disconnectAllConsumers } from '@/infrastructure/kafka/consumer-manager';
-import { OutboxRepository } from '@/infrastructure/outbox/outbox-repository';
-import { OutboxRelay } from '@/infrastructure/outbox/outbox-relay';
-import { registerPaymentEventsConsumer } from '@/kafka/consumers/payment-events.consumer';
-import { registerPaymentRetryConsumer } from '@/kafka/consumers/payment-retry.consumer';
-import { registerDeadLetterConsumer } from '@/kafka/consumers/dead-letter.consumer';
-import { registerReconciliationConsumer } from '@/kafka/consumers/reconciliation.consumer';
-import { setupScheduler } from '@/infrastructure/scheduler/cron';
-import { createApp } from './app';
-import { appConfig } from '@/config';
-import { logger } from '@/common/logger/logger';
+import * as http from "http";
+import { getPool, closePool } from "@/infrastructure/database/pg-pool";
+import { runMigrations } from "@/infrastructure/database/migrator";
+import {
+  getRedisClient,
+  closeRedisClient,
+} from "@/infrastructure/redis/redis-client";
+import {
+  getProducer,
+  disconnectProducer,
+} from "@/infrastructure/kafka/producer";
+import {
+  initConsumerManager,
+  disconnectAllConsumers,
+} from "@/infrastructure/kafka/consumer-manager";
+import { OutboxRepository } from "@/infrastructure/outbox/outbox-repository";
+import { OutboxRelay } from "@/infrastructure/outbox/outbox-relay";
+import { registerPaymentEventsConsumer } from "@/kafka/consumers/payment-events.consumer";
+import { registerPaymentRetryConsumer } from "@/kafka/consumers/payment-retry.consumer";
+import { registerDeadLetterConsumer } from "@/kafka/consumers/dead-letter.consumer";
+import { registerReconciliationConsumer } from "@/kafka/consumers/reconciliation.consumer";
+import { setupScheduler } from "@/infrastructure/scheduler/cron";
+import { createApp } from "./app";
+import { appConfig } from "@/config";
+import { logger } from "@/common/logger/logger";
 
 async function main(): Promise<void> {
-  logger.info({ env: appConfig.nodeEnv }, 'Payment system starting up');
+  logger.info({ env: appConfig.nodeEnv }, "Payment system starting up");
 
   // 1. Database
   const pool = getPool();
-  await pool.query('SELECT 1'); // verify connectivity
-  logger.info('PostgreSQL connected');
+  await pool.query("SELECT 1"); // verify connectivity
+  logger.info("PostgreSQL connected");
 
   // 2. Migrations
   await runMigrations(pool);
@@ -58,7 +67,7 @@ async function main(): Promise<void> {
   // 3. Redis
   const redis = getRedisClient();
   await redis.ping();
-  logger.info('Redis connected');
+  logger.info("Redis connected");
 
   // 4. Kafka producer
   await getProducer();
@@ -83,7 +92,7 @@ async function main(): Promise<void> {
 
   await new Promise<void>((resolve) => {
     server.listen(appConfig.port, () => {
-      logger.info({ port: appConfig.port }, 'HTTP server listening');
+      logger.info({ port: appConfig.port }, "HTTP server listening");
       resolve();
     });
   });
@@ -93,7 +102,7 @@ async function main(): Promise<void> {
 
   // ─── Graceful shutdown ───────────────────────────────────────────────────
   const shutdown = async (signal: string): Promise<void> => {
-    logger.info({ signal }, 'Shutting down gracefully');
+    logger.info({ signal }, "Shutting down gracefully");
 
     // Stop accepting new connections
     await new Promise<void>((resolve, reject) =>
@@ -107,26 +116,26 @@ async function main(): Promise<void> {
     await closeRedisClient();
     await closePool();
 
-    logger.info('Shutdown complete');
+    logger.info("Shutdown complete");
     process.exit(0);
   };
 
-  process.once('SIGTERM', () => void shutdown('SIGTERM'));
-  process.once('SIGINT',  () => void shutdown('SIGINT'));
+  process.once("SIGTERM", () => void shutdown("SIGTERM"));
+  process.once("SIGINT", () => void shutdown("SIGINT"));
 
-  process.on('uncaughtException', (err: Error) => {
-    logger.fatal({ err }, 'Uncaught exception — shutting down');
-    void shutdown('uncaughtException');
+  process.on("uncaughtException", (err: Error) => {
+    logger.fatal({ err }, "Uncaught exception — shutting down");
+    void shutdown("uncaughtException");
   });
 
-  process.on('unhandledRejection', (reason: unknown) => {
-    logger.fatal({ reason }, 'Unhandled promise rejection — shutting down');
-    void shutdown('unhandledRejection');
+  process.on("unhandledRejection", (reason: unknown) => {
+    logger.fatal({ reason }, "Unhandled promise rejection — shutting down");
+    void shutdown("unhandledRejection");
   });
 }
 
 main().catch((err) => {
   // Logger may not be initialised yet — use console as fallback
-  console.error('Fatal startup error:', err);
+  console.error("Fatal startup error:", err);
   process.exit(1);
 });

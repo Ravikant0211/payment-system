@@ -1,7 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
-import { PaymentService } from './payment.service';
-import { CreatePaymentSchema, ListPaymentsQuerySchema } from './payment.schemas';
-import { NotFoundError } from '@/common/errors';
+import { Request, Response, NextFunction } from "express";
+import { PaymentService } from "./payment.service";
+import {
+  CreatePaymentSchema,
+  ListPaymentsQuerySchema,
+} from "./payment.schemas";
 
 /**
  * PaymentController: thin HTTP adapter layer.
@@ -26,7 +28,7 @@ export class PaymentController {
         data: {
           paymentId: result.paymentId,
           checkoutUrl: result.checkoutUrl,
-          message: 'Redirect the customer to checkoutUrl to complete payment',
+          message: "Redirect the customer to checkoutUrl to complete payment",
         },
       });
     } catch (err) {
