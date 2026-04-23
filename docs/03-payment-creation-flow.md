@@ -54,7 +54,7 @@ sequenceDiagram
         Note over Client: Client redirects user to Stripe-hosted checkout page.<br/>Stripe handles card entry, UPI flow, net banking redirect.
 
         loop OutboxRelay — every 500ms
-            OR->>DB: SELECT * FROM outbox<br/>WHERE status=PENDING<br/>AND scheduled_at <= NOW()<br/>ORDER BY created_at<br/>FOR UPDATE SKIP LOCKED
+            OR->>DB: SELECT * FROM outbox<br/>WHERE status=PENDING<br/>AND scheduled_at &lt;= NOW()<br/>ORDER BY created_at<br/>FOR UPDATE SKIP LOCKED
             DB-->>OR: Pending outbox rows
             OR->>KF: publish payment.initiated<br/>with traceId + correlationId headers<br/>(inner retryWithBackoff: 2 attempts)
             OR->>DB: UPDATE outbox SET status=SENT, sent_at=NOW()

@@ -60,12 +60,17 @@ flowchart LR
     RESP_OK --> L1_STORE["SET cached response
     in Redis for 24h"]
 
-    style L1 fill:#e3f2fd,stroke:#1565C0
-    style L2 fill:#fff3e0,stroke:#E65100
-    style CACHED fill:#6bcb77
-    style RESP_OK fill:#6bcb77
-    style RESP_DUP fill:#ffd93d
-    style L1_STORE fill:#6bcb77
+    classDef default fill:#ffffff,stroke:#37474F,color:#000000
+
+    style L1 fill:#E3F2FD,stroke:#1565C0,color:#0D47A1
+    style L2 fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    style CACHED fill:#66BB6A,stroke:#1B5E20,color:#000000
+    style RESP_OK fill:#66BB6A,stroke:#1B5E20,color:#000000
+    style RESP_DUP fill:#FFD93D,stroke:#F57F17,color:#000000
+    style L1_STORE fill:#66BB6A,stroke:#1B5E20,color:#000000
+    style REQ fill:#E1F5FE,stroke:#0277BD,color:#01579B
+    style AUTH fill:#F3E5F5,stroke:#6A1B9A,color:#4A148C
+    style SVC fill:#F3E5F5,stroke:#6A1B9A,color:#4A148C
 ```
 
 ## Why Two Layers?

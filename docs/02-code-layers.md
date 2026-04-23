@@ -89,10 +89,12 @@ graph TB
     Domain --> Common
     Entry --> Common
 
-    style Entry fill:#e3f2fd,stroke:#1565C0
-    style Domain fill:#f3e5f5,stroke:#6A1B9A
-    style Common fill:#fff8e1,stroke:#F57F17
-    style Infra fill:#e8f5e9,stroke:#2E7D32
+    classDef default fill:#ffffff,stroke:#37474F,color:#000000
+
+    style Entry fill:#E3F2FD,stroke:#1565C0,color:#0D47A1
+    style Domain fill:#F3E5F5,stroke:#6A1B9A,color:#4A148C
+    style Common fill:#FFF8E1,stroke:#F57F17,color:#E65100
+    style Infra fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
 ```
 
 ## Directory Structure

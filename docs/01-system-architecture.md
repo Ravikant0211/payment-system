@@ -99,11 +99,17 @@ graph TB
 
     PROM --> GRAFANA
 
-    style PaymentSystem fill:#e8f4fd,stroke:#2196F3
-    style DataStores fill:#fff3e0,stroke:#FF9800
-    style MsgBus fill:#f3e5f5,stroke:#9C27B0
-    style External fill:#e8f5e9,stroke:#4CAF50
-    style Observability fill:#fce4ec,stroke:#E91E63
+    classDef default fill:#ffffff,stroke:#37474F,color:#000000
+    classDef db fill:#FFF8E1,stroke:#F57F17,color:#000000
+
+    class PG,REDIS,KAFKA db
+
+    style PaymentSystem fill:#E3F2FD,stroke:#1565C0,color:#0D47A1
+    style DataStores fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    style MsgBus fill:#F3E5F5,stroke:#6A1B9A,color:#4A148C
+    style External fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    style Observability fill:#FCE4EC,stroke:#AD1457,color:#880E4F
+    style Clients fill:#ECEFF1,stroke:#455A64,color:#263238
 ```
 
 ## Key Design Decisions

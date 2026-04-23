@@ -7,7 +7,7 @@ flowchart TD
     TICK(["Cron fires every 5 minutes"]) --> FETCH["findStuckPayments()
     SELECT * FROM payments
     WHERE status = 'PROCESSING'
-    AND updated_at < NOW() - 35min
+    AND updated_at &lt; NOW() - 35min
     LIMIT 100"]
 
     FETCH --> EMPTY{Any candidates?}
@@ -78,11 +78,21 @@ flowchart TD
     PAYMENT_FAILED to Kafka
     Downstream: merchant notification"]
 
-    style COMPLETE fill:#6bcb77
-    style KAFKA_C fill:#6bcb77
-    style FAILED fill:#ff6b6b,color:#fff
-    style KAFKA_F fill:#ff6b6b,color:#fff
-    style CAUTIOUS fill:#ffd93d
+    classDef default fill:#ffffff,stroke:#37474F,color:#000000
+
+    style COMPLETE fill:#66BB6A,stroke:#1B5E20,color:#000000
+    style KAFKA_C fill:#66BB6A,stroke:#1B5E20,color:#000000
+    style FAILED fill:#EF5350,stroke:#B71C1C,color:#FFFFFF
+    style KAFKA_F fill:#EF5350,stroke:#B71C1C,color:#FFFFFF
+    style CAUTIOUS fill:#FFD93D,stroke:#F57F17,color:#000000
+    style SKIP fill:#ECEFF1,stroke:#546E7A,color:#263238
+    style RECHECK fill:#ECEFF1,stroke:#546E7A,color:#263238
+    style TICK fill:#E3F2FD,stroke:#1565C0,color:#0D47A1
+    style FETCH fill:#E3F2FD,stroke:#1565C0,color:#0D47A1
+    style LOOP fill:#E3F2FD,stroke:#1565C0,color:#0D47A1
+    style POLL fill:#E3F2FD,stroke:#1565C0,color:#0D47A1
+    style FAIL_NS fill:#EF5350,stroke:#B71C1C,color:#FFFFFF
+    style DONE fill:#ECEFF1,stroke:#546E7A,color:#263238
 ```
 
 ## Why This Is Needed

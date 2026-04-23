@@ -4,51 +4,52 @@ Three-path routing for every Kafka message failure. Implements Figure 12 from th
 
 ```mermaid
 flowchart TD
-    MSG(["Kafka Message\narrives on partition"]) --> HANDLER["Consumer Handler\neg. handlePaymentCompleted()"]
+    MSG(["Kafka Message<br/>arrives on partition"]) --> HANDLER["Consumer Handler<br/>eg. handlePaymentCompleted()"]
 
-    HANDLER --> OK{Handler\nsucceeded?}
+    HANDLER --> OK{"Handler<br/>succeeded?"}
 
-    OK -->|"Yes"| COMMIT_OK["commitOffset\nPartition moves forward"]
+    OK -->|"Yes"| COMMIT_OK["commitOffset<br/>Partition moves forward"]
 
-    OK -->|"No — exception thrown"| CLASSIFY{RetryableError\nthrown?}
+    OK -->|"No — exception thrown"| CLASSIFY{"RetryableError<br/>thrown?"}
 
-    CLASSIFY -->|"Non-retryable\neg. bad JSON, business rule violation"| DLQ_NOW["Publish to\noriginalTopic.dlq\nimmediately"]
+    CLASSIFY -->|"Non-retryable<br/>eg. bad JSON, business rule violation"| DLQ_NOW["Publish to<br/>originalTopic.dlq<br/>immediately"]
 
-    CLASSIFY -->|"RetryableError\neg. downstream service unavailable"| BUDGET{Retries\nremaining?\nmax = 3}
+    CLASSIFY -->|"RetryableError<br/>eg. downstream service unavailable"| BUDGET{"Retries<br/>remaining?<br/>max = 3"}
 
-    BUDGET -->|"Exhausted after\n3 attempts"| DLQ_NOW
+    BUDGET -->|"Exhausted after<br/>3 attempts"| DLQ_NOW
 
-    BUDGET -->|"Retries left"| SCHEDULE["Schedule via Outbox\n─────────────────────────\nAttempt 1 → +1 minute\nAttempt 2 → +5 minutes\nAttempt 3 → +30 minutes\nPersisted in DB before offset commit"]
+    BUDGET -->|"Retries left"| SCHEDULE["Schedule via Outbox<br/>─────────────────────────<br/>Attempt 1 → +1 minute<br/>Attempt 2 → +5 minutes<br/>Attempt 3 → +30 minutes<br/>Persisted in DB before offset commit"]
 
-    SCHEDULE --> COMMIT_R["commitOffset\nPartition unblocked\nno blocking wait"]
+    SCHEDULE --> COMMIT_R["commitOffset<br/>Partition unblocked<br/>no blocking wait"]
 
-    SCHEDULE --> OUTBOX[("outbox table\nscheduled_at = future timestamp")]
-    OUTBOX --> RELAY["OutboxRelay polls\nuntil scheduled_at <= NOW()"]
-    RELAY --> RETRY_T["payment.retry topic\nheaders: x-retry-count, x-original-topic"]
-    RETRY_T --> RETRY_C["Retry Consumer\nre-dispatches to\noriginal handler function"]
+    SCHEDULE --> OUTBOX[("outbox table<br/>scheduled_at = future timestamp")]
+    OUTBOX --> RELAY["OutboxRelay polls<br/>until scheduled_at &lt;= NOW()"]
+    RELAY --> RETRY_T["payment.retry topic<br/>headers: x-retry-count, x-original-topic"]
+    RETRY_T --> RETRY_C["Retry Consumer<br/>re-dispatches to<br/>original handler function"]
     RETRY_C --> HANDLER
 
     DLQ_NOW --> COMMIT_D["commitOffset"]
-    DLQ_NOW --> DLQ_T["originalTopic.dlq\neg. payment.completed.dlq"]
+    DLQ_NOW --> DLQ_T["originalTopic.dlq<br/>eg. payment.completed.dlq"]
     DLQ_T --> DLQ_C["DLQ Consumer"]
-    DLQ_C --> DLQ_DB[("dead_letter_messages\nstatus=OPEN")]
-    DLQ_C --> ALERT["Slack Alert\nseverity: critical\ntopic, partition, offset, paymentId, error"]
-    DLQ_C --> PROM["Prometheus counter\ndlq_messages_total{topic}"]
+    DLQ_C --> DLQ_DB[("dead_letter_messages<br/>status=OPEN")]
+    DLQ_C --> ALERT["Slack Alert<br/>severity: critical<br/>topic, partition, offset, paymentId, error"]
+    DLQ_C --> PROM["Prometheus counter<br/>dlq_messages_total{topic}"]
 
-    DLQ_DB --> ADMIN["Operator Actions\n────────────────────────\nGET  /admin/dlq\nPOST /admin/dlq/:id/replay\nPOST /admin/dlq/:id/discard"]
+    DLQ_DB --> ADMIN["Operator Actions<br/>────────────────────────<br/>GET  /admin/dlq<br/>POST /admin/dlq/:id/replay<br/>POST /admin/dlq/:id/discard"]
     ADMIN -->|"replay: re-publish to original topic"| RETRY_T
 
-    style DLQ_NOW fill:#ff6b6b,color:#fff
-    style DLQ_T fill:#ff6b6b,color:#fff
-    style DLQ_C fill:#ff6b6b,color:#fff
-    style ALERT fill:#ff6b6b,color:#fff
-    style SCHEDULE fill:#ffd93d
-    style RETRY_T fill:#ffd93d
-    style RETRY_C fill:#ffd93d
-    style OUTBOX fill:#ffd93d
-    style COMMIT_OK fill:#6bcb77
-    style COMMIT_R fill:#6bcb77
-    style COMMIT_D fill:#6bcb77
+    classDef default fill:#ffffff,stroke:#37474F,color:#000000
+    classDef decision fill:#E1F5FE,stroke:#0277BD,color:#01579B
+    classDef danger fill:#EF5350,stroke:#B71C1C,color:#FFFFFF
+    classDef warn fill:#FFD93D,stroke:#F57F17,color:#000000
+    classDef success fill:#66BB6A,stroke:#1B5E20,color:#000000
+    classDef info fill:#E3F2FD,stroke:#1565C0,color:#0D47A1
+
+    class OK,CLASSIFY,BUDGET decision
+    class DLQ_NOW,DLQ_T,DLQ_C,ALERT danger
+    class SCHEDULE,RETRY_T,RETRY_C,OUTBOX warn
+    class COMMIT_OK,COMMIT_R,COMMIT_D success
+    class MSG,HANDLER,RELAY,DLQ_DB,PROM,ADMIN info
 ```
 
 ## Three Routing Paths
